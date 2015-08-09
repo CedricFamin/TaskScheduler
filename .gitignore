@@ -41,3 +41,13 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+*.obj
+*.idb
+
+TaskScheduler/TaskScheduler/Debug/
+TaskScheduler/Debug/
+TaskScheduler/.vs/
+
+*.pdb
+*.ilk
+*.exe
