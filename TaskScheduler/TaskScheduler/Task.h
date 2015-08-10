@@ -2,6 +2,7 @@
 #define TASK_H_
 
 #include <chrono>
+#include "Promise.h"
 
 #include "FreeListAllocator.h"
 
@@ -18,6 +19,7 @@ public:
 	struct TaskData
 	{
 		TaskData() {}
+		~TaskData() {}
 		union {
 			struct
 			{
@@ -29,6 +31,10 @@ public:
 				TaskId RepetiveTask;
 				std::chrono::milliseconds RepeatTimer;
 			} RepetetiveTaskData;
+			struct FutureData
+			{
+				Future<int> * Future;
+			} FutureData;
 		};
 	};
 	typedef void(CallbackType)(TaskData &);

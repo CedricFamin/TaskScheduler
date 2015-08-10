@@ -5,9 +5,17 @@
 #include <iostream>
 #include <chrono>
 #include <ctime>
+#include <string>
 
 #include "stdafx.h"
 #include "TaskScheduler.h"
+#include "Promise.h"
+
+
+void ReadFutureTask(Task::TaskData & parData)
+{
+	std::cout << "Future : " << parData.FutureData.Future->GetValue() << std::endl;
+}
 
 void StopSchedulerTask(Task::TaskData & parData)
 {
@@ -66,7 +74,7 @@ void ParentChildTask()
 
 void ScheduleTask()
 {
-	TaskScheduler taskScheduler(1);
+	TaskScheduler taskScheduler(8);
 
 	taskScheduler.Start();
 	Task::TaskData stopSchedulerTask;
@@ -86,7 +94,7 @@ void ScheduleTask()
 
 void RepeatTask()
 {
-	TaskScheduler taskScheduler(1);
+	TaskScheduler taskScheduler(8);
 
 	taskScheduler.Start();
 	Task::TaskData stopSchedulerTask;
@@ -109,14 +117,112 @@ void ExecuteOneTask()
 	TaskScheduler taskScheduler(1);
 	
 	taskScheduler.Start();
+
+	Task::TaskData stopSchedulerTask;
+	stopSchedulerTask.StopData.Scheduler = &taskScheduler;
+	TaskId stopTask = taskScheduler.CreateTask(StopSchedulerTask, stopSchedulerTask);
+
 	Task::TaskData emptyTaskData;
-	TaskId helloWorldTask = taskScheduler.CreateTask(massAddition, emptyTaskData);
-	taskScheduler.AddTask(helloWorldTask);
+	TaskId helloWorldTask = taskScheduler.CreateTask(helloWorld, emptyTaskData);
+	TaskId byeWorldTask = taskScheduler.CreateTask(byeWorld, emptyTaskData);
+
+	taskScheduler.ScheduleAt(std::chrono::system_clock::now() + std::chrono::seconds(10), helloWorldTask);
+	taskScheduler.ScheduleAt(std::chrono::system_clock::now() + std::chrono::seconds(15), byeWorldTask);
+	taskScheduler.ScheduleAt(std::chrono::system_clock::now() + std::chrono::seconds(20), stopTask);
+
+	taskScheduler.MainLoop();
+
 	taskScheduler.Stop();
+}
+
+void ExecuteMassTask()
+{
+	TaskScheduler taskScheduler(8);
+	taskScheduler.Start();
+
+	Task::TaskData stopSchedulerTask;
+	stopSchedulerTask.StopData.Scheduler = &taskScheduler;
+	TaskId stopTask = taskScheduler.CreateTask(StopSchedulerTask, stopSchedulerTask);
+
+	Task::TaskData emptyTaskData;
+	for (int i = 0; i < 512; ++i)
+	{
+		TaskId task = taskScheduler.CreateTask(massAddition, emptyTaskData, stopTask);
+		taskScheduler.AddTask(task);
+	}
+	taskScheduler.AddTask(stopTask);
+
+	taskScheduler.MainLoop();
+}
+
+void DelayedInit()
+{
+	promise_impl::DelayedInit<int> delayedInt;
+	promise_impl::DelayedInit<std::string> delayedString;
+	promise_impl::DelayedInit<TaskScheduler> delayedComplexObject;
+
+	delayedInt.Init(5);
+	
+	std::cout << "- DelayedInit : delayedInt.Init(5) = " << *delayedInt << std::endl;
+
+	delayedString.Init("String");
+	std::cout << "- DelayedInit : delayedString.Init(\"String\") = " << *delayedString << std::endl;
+
+	std::cout << "- DelayedInit : delayedComplexObject.Init(8) = " << *delayedString << std::endl;
+	delayedComplexObject.Init(8);
+
+	delayedComplexObject->Start();
+	Task::TaskData stopSchedulerTask;
+	stopSchedulerTask.StopData.Scheduler = &(*delayedComplexObject);
+	TaskId stopTask = delayedComplexObject->CreateTask(StopSchedulerTask, stopSchedulerTask);
+
+	Task::TaskData emptyTaskData;
+	TaskId helloWorldTask = delayedComplexObject->CreateTask(helloWorld, emptyTaskData);
+	TaskId byeWorldTask = delayedComplexObject->CreateTask(byeWorld, emptyTaskData);
+
+	delayedComplexObject->ScheduleAt(std::chrono::system_clock::now() + std::chrono::seconds(1), helloWorldTask);
+	delayedComplexObject->ScheduleAt(std::chrono::system_clock::now() + std::chrono::seconds(3), byeWorldTask);
+	delayedComplexObject->ScheduleAt(std::chrono::system_clock::now() + std::chrono::seconds(6), stopTask);
+	delayedComplexObject->MainLoop();
+}
+
+void PromiseTest()
+{
+	TaskScheduler taskScheduler(8);
+	taskScheduler.Start();
+	Task::TaskData stopSchedulerTask;
+	stopSchedulerTask.StopData.Scheduler = &taskScheduler;
+	TaskId stopTask = taskScheduler.CreateTask(StopSchedulerTask, stopSchedulerTask);
+
+	Promise<int> promise;
+	Future<int> future = promise.GetFuture();
+	Task::TaskData promiseData;
+	promiseData.FutureData.Future = &future;
+	TaskId futureTask = taskScheduler.CreateTask(ReadFutureTask, promiseData, stopTask);
+
+
+	
+	taskScheduler.AddTask(futureTask);
+	taskScheduler.AddTask(stopTask);
+
+	massAddition(stopSchedulerTask);
+	massAddition(stopSchedulerTask);
+	massAddition(stopSchedulerTask);
+
+	promise = 42;
+	taskScheduler.MainLoop();
 }
 
 int main()
 {
+	std::cout << "====== Begin Test: DelayedInit =====" << std::endl;
+	DelayedInit();
+	std::cout << "====== End Test: DelayedInit =====" << std::endl;
+
+	std::cout << "====== Begin Test: Promise =====" << std::endl;
+	PromiseTest();
+	std::cout << "====== End Test: Promise =====" << std::endl;
+
 	std::cout << "====== Begin Test: ExecuteOneTask =====" << std::endl;
 	ExecuteOneTask();
 	std::cout << "====== End Test: ExecuteOneTask =====" << std::endl;
@@ -132,6 +238,10 @@ int main()
 	std::cout << "====== Begin Test: RepeatTask =====" << std::endl;
 	RepeatTask();
 	std::cout << "====== End Test: RepeatTask =====" << std::endl;
+
+	std::cout << "====== Begin Test: ExecuteMassTask =====" << std::endl;
+	ExecuteMassTask();
+	std::cout << "====== End Test: ExecuteMassTask =====" << std::endl;
 
 	system("PAUSE");
     return 0;

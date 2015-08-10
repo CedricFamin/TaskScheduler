@@ -51,3 +51,5 @@ TaskScheduler/.vs/
 *.pdb
 *.ilk
 *.exe
+TaskScheduler/TaskScheduler.opensdf
+*.sdf

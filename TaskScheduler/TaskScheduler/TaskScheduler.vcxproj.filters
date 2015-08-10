@@ -19,6 +19,9 @@
     <Filter Include="Source Files\Task">
       <UniqueIdentifier>{41bdc368-f263-45fe-9de8-a9ac8689fe68}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Synchronisation">
+      <UniqueIdentifier>{e4ed86e8-d3df-4f42-b511-ccaae2162c93}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -41,6 +44,12 @@
     </ClInclude>
     <ClInclude Include="WorkerThread.h">
       <Filter>Header Files\Task</Filter>
+    </ClInclude>
+    <ClInclude Include="TripeBuffering.h">
+      <Filter>Header Files\Synchronisation</Filter>
+    </ClInclude>
+    <ClInclude Include="Promise.h">
+      <Filter>Header Files\Synchronisation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

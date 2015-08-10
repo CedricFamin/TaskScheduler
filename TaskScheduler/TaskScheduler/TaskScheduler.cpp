@@ -1,7 +1,7 @@
 #include "TaskScheduler.h"
 
 TaskScheduler::TaskScheduler(unsigned int nbThread)
-	: _taskAllocator(512)
+	: _taskAllocator(1024)
 	, _threads(nbThread)
 	, _useThisThreadDuringWait(false)
 {
@@ -66,7 +66,7 @@ void TaskScheduler::ScheduleAt(std::chrono::system_clock::time_point const & par
 	assert(this->_taskAllocator.IsAlive(parTask));
 	Task * taskPtr = this->_taskAllocator.GetObject(parTask);
 	taskPtr->SetTimeToLaunch(parTime);
-	this->_taskToProcess.push_back(taskPtr);
+	this->_taskToProcess.push_back(taskPtr); // todo sort the vector !!!
 	this->_newTask.notify_all();
 }
 
