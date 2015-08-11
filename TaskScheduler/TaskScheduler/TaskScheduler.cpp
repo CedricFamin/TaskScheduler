@@ -3,9 +3,7 @@
 TaskScheduler::TaskScheduler(unsigned int nbThread)
 	: _taskAllocator(1024)
 	, _threads(nbThread)
-	, _useThisThreadDuringWait(false)
 {
-
 }
 
 TaskScheduler::~TaskScheduler()

@@ -64,7 +64,7 @@ private:
 			: Generation(0)
 			, Next(0)
 		{
-			assert(this == reinterpret_cast<void*>(&Data)); // maybe on some obscure plateforms this could be false ?
+			assert(this == reinterpret_cast<void*>(&Data)); // extra security
 		}
 		data_type Data;
 		unsigned int  Generation;

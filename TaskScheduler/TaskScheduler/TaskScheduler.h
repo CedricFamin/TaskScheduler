@@ -38,8 +38,8 @@ public:
 
 private:
 
-	std::atomic<bool>			_running;
-	bool					    _useThisThreadDuringWait;
+	std::atomic<bool>			_running = false;
+	bool					    _useThisThreadDuringWait = false;
 	std::mutex                  _taskListMutex;
 	std::vector<WorkerThread>   _threads;
 	std::list<Task*>			_taskToProcess;

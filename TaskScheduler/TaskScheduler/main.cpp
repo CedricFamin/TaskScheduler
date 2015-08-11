@@ -6,10 +6,12 @@
 #include <chrono>
 #include <ctime>
 #include <string>
+#include <chrono>
 
 #include "stdafx.h"
 #include "TaskScheduler.h"
 #include "Promise.h"
+#include "TripeBuffering.h"
 
 
 void ReadFutureTask(Task::TaskData & parData)
@@ -213,8 +215,44 @@ void PromiseTest()
 	taskScheduler.MainLoop();
 }
 
+#include "TripeBuffering.h"
+
+void TripleBuffering()
+{
+	TripleBufferedItem<int> tripleBufferingInt;
+	tripleBufferingInt.ProducerValue() = 5;
+	tripleBufferingInt.Commit();
+	std::thread thread([&]()
+	{
+		int lastValue = 0;
+		while (tripleBufferingInt.ConsumerValue() < 10)
+		{
+			tripleBufferingInt.Fetch();
+			if (tripleBufferingInt.ConsumerValue() != lastValue)
+			{
+				std::cout << tripleBufferingInt.ConsumerValue() << " ";
+				lastValue = tripleBufferingInt.ConsumerValue();
+			}
+		}
+		std::cout << std::endl;
+	});
+
+	while (tripleBufferingInt.ProducerValue() < 10)
+	{
+		using namespace std::literals;
+		std::this_thread::sleep_for(1s);
+		tripleBufferingInt.ProducerValue() = tripleBufferingInt.ProducerValue() + 1;
+		tripleBufferingInt.Commit();
+	}
+	thread.join();
+}
+
 int main()
 {
+	std::cout << "====== Begin Test: Triple Buffering =====" << std::endl;
+	TripleBuffering();
+	std::cout << "====== End Test: Triple Buffering =====" << std::endl;
+
 	std::cout << "====== Begin Test: DelayedInit =====" << std::endl;
 	DelayedInit();
 	std::cout << "====== End Test: DelayedInit =====" << std::endl;

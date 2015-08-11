@@ -28,7 +28,7 @@ public:
 		this->_intermediateValue = this->_producerValue;
 	}
 
-	void Commit()
+	void Fetch()
 	{
 		std::lock_guard<std::mutex> lg(this->_mutex);
 		this->_consumerValue = this->_intermediateValue;
