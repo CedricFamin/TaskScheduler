@@ -136,7 +136,7 @@ void TaskScheduler::WaitForTaskFinished(TaskId const & parTaskId)
 		Task * task = nullptr;
 		if (_useThisThreadDuringWait)
 		{
-			std::unique_lock<std::mutex> ul(this->_taskListMutex);
+			std::lock_guard<std::mutex> ul(this->_taskListMutex);
 			task = PickupTaskIFP();
 		}
 			

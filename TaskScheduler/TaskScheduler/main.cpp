@@ -123,18 +123,10 @@ void ExecuteOneTask()
 	Task::TaskData stopSchedulerTask;
 	stopSchedulerTask.StopData.Scheduler = &taskScheduler;
 	TaskId stopTask = taskScheduler.CreateTask(StopSchedulerTask, stopSchedulerTask);
-
-	Task::TaskData emptyTaskData;
-	TaskId helloWorldTask = taskScheduler.CreateTask(helloWorld, emptyTaskData);
-	TaskId byeWorldTask = taskScheduler.CreateTask(byeWorld, emptyTaskData);
-
-	taskScheduler.ScheduleAt(std::chrono::system_clock::now() + std::chrono::seconds(10), helloWorldTask);
-	taskScheduler.ScheduleAt(std::chrono::system_clock::now() + std::chrono::seconds(15), byeWorldTask);
-	taskScheduler.ScheduleAt(std::chrono::system_clock::now() + std::chrono::seconds(20), stopTask);
+	
+	taskScheduler.AddTask(stopTask);
 
 	taskScheduler.MainLoop();
-
-	taskScheduler.Stop();
 }
 
 void ExecuteMassTask()
@@ -214,8 +206,6 @@ void PromiseTest()
 	promise = 42;
 	taskScheduler.MainLoop();
 }
-
-#include "TripeBuffering.h"
 
 void TripleBuffering()
 {
